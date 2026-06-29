@@ -1,5 +1,4 @@
-import { hasActiveSubscription } from "@/lib/subscriptionAccess";
-
+import something from "../../../lib/subscriptionAccess";
 export async function POST(req) {
   const { userId, planKind } = await req.json();
 
