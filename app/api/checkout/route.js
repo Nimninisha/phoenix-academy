@@ -1,11 +1,11 @@
 import Stripe from "stripe";
-import { connectDB } from "@/lib/db";
-import Plan from "@/lib/models/plan";
+import dbConnect from "../../../lib/mongodb";
+import Plan from "../../../models/plan";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
-  await connectDB();
+  await dbConnect();
 
   const { planKind, billingPeriod, userId } = await req.json();
 
@@ -26,8 +26,8 @@ export async function POST(req) {
         quantity: 1,
       },
     ],
-    success_url: `${process.env.NEXT_PUBLIC_URL}/my-subscriptions?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_URL}/store?canceled=true`,
+    success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/my-subscriptions?success=true`,
+    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/store?canceled=true`,
     metadata: {
       userId,
       planId: plan._id.toString(),
