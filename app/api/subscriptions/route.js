@@ -1,6 +1,6 @@
 import { connectDB } from "@/lib/mongodb";
 import Subscription from "@/lib/models/subscription";
-import User from "@/lib/models/user";
+import User from "@/lib/models/User";
 
 export async function GET() {
   await connectDB();

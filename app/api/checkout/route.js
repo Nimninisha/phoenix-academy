@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import dbConnect from "@/lib/mongodb";
-import Plan from "@/models/plan";
+import Plan from "@/lib/models/plan";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 

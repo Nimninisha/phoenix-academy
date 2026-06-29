@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { connectDB } from "../../../lib/mongodb";
-import User from "../../../models/User";
+import User from "../../../lib/models/User";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);

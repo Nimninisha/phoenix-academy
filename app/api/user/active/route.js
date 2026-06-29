@@ -1,8 +1,8 @@
 import { connectDB } from "@/lib/mongodb";
-import User from "@/lib/models/user";
+import User from "@/lib/models/User";
 import Subscription from "@/lib/models/subscription";
 import Purchase from ".@/lib/models/purchase";
-import Simulation from "@/models/simulation";
+import Simulation from "@/lib/models/simulation";
 
 export async function GET() {
   await connectDB();
