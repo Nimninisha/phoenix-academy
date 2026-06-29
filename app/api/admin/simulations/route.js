@@ -1,5 +1,5 @@
-import dbConnect from "../../../../lib/mongodb";
-import Simulation from "../../../../models/simulation";
+import dbConnect from "@/lib/mongodb";
+import Simulation from "@/models/simulation";
 
 export async function GET() {
   await dbConnect();

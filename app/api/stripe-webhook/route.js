@@ -1,6 +1,6 @@
 import Stripe from "stripe";
-import { connectDB } from "../../../../lib/mongodb";
-import Subscription from "../../../../lib/models/subscription";
+import { connectDB } from "@/lib/mongodb";
+import Subscription from "@/lib/models/subscription";
 import { Resend } from "resend";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
