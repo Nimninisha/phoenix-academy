@@ -8,9 +8,10 @@ import Plan from "@/lib/models/plan";
 export async function POST(req) {
   await dbConnect();
 
-  const Stripe = (await import("stripe")).default;
+  
+const Stripe = (await import("stripe")).default;
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   const { planKind, billingPeriod, userId } = await req.json();
 

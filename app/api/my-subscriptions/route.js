@@ -1,7 +1,8 @@
-import Stripe from "stripe";
+
 import dbConnect from "@/lib/mongodb";
 import Subscription from "@/lib/models/subscription";
 
+const Stripe = (await import("stripe")).default;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
