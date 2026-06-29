@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { connectDB } from "@/lib/mongodb";
+import dbConnect from "@/lib/mongodb";
 import Subscription from "@/lib/models/subscription";
 import { Resend } from "resend";
 
@@ -31,7 +31,7 @@ export async function POST(req) {
     const customerId = session.customer;
     const subscriptionId = session.subscription;
 
-    await connectDB();
+   await dbConnect();
 
     // Retrieve full subscription details from Stripe
     const stripeSub = await stripe.subscriptions.retrieve(subscriptionId);

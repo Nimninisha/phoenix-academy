@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { connectDB } from "@/lib/mongodb";
+import dbConnect from "@/lib/mongodb";
 import Subscription from "@/lib/models/subscription";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -27,7 +27,7 @@ export async function POST(req) {
     const customerId = session.customer;
     const subscriptionId = session.subscription;
 
-    await connectDB();
+    await dbConnect();
 
     const stripeSub = await stripe.subscriptions.retrieve(subscriptionId);
 

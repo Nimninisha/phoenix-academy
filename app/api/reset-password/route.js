@@ -1,8 +1,8 @@
 // app/api/reset-password/route.js
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { connectDB } from "../../../lib/mongodb";
-import User from "../../../lib/models/User";
+import dbConnect from "@/lib/mongodb";
+import User from "@/lib/models/User";
 
 export async function POST(req) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    await connectDB();
+    await dbConnect();
 
     // Find user with valid token
     const user = await User.findOne({

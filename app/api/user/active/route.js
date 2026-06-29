@@ -1,11 +1,11 @@
-import { connectDB } from "@/lib/mongodb";
+import dbConnect from "@/lib/mongodb";
 import User from "@/lib/models/User";
 import Subscription from "@/lib/models/subscription";
 import Purchase from "@/lib/models/purchase";
 import Simulation from "@/lib/models/simulation";
 
 export async function GET() {
-  await connectDB();
+await dbConnect();
 
   const user = await User.findOne({ email: "demo@phoenixacademy.com" });
   if (!user)

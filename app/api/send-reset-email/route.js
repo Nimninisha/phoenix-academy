@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { connectDB } from "../../../lib/mongodb";
-import User from "../../../lib/models/User";
+import dbConnect from "@/lib/mongodb";
+import User from "@/lib/models/User";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -14,7 +14,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    await connectDB();
+    await dbConnect();
 
     const user = await User.findOne({ email });
     if (!user) {

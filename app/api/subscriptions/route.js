@@ -1,9 +1,9 @@
-import { connectDB } from "@/lib/mongodb";
+import dbConnect from "@/lib/mongodb";
 import Subscription from "@/lib/models/subscription";
 import User from "@/lib/models/User";
 
 export async function GET() {
-  await connectDB();
+  await dbConnect();
 
   const user = await User.findOne({ email: "demo@phoenixacademy.com" });
   if (!user) return Response.json([]);
@@ -13,7 +13,7 @@ export async function GET() {
 }
 
 export async function POST(req) {
-  await connectDB();
+  await dbConnect();
   const body = await req.json();
 
   const user = await User.findOne({ email: "demo@phoenixacademy.com" });
