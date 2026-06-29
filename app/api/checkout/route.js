@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Stripe from "stripe";
 import dbConnect from "@/lib/mongodb";
 import Plan from "@/lib/models/plan";
