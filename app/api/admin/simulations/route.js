@@ -1,5 +1,5 @@
-import { connectDB } from "../../../lib/db";
-import Simulation from "../../../lib/models/simulation";
+import dbConnect from "../../../../lib/mongodb";
+import Simulation from "../../../../lib/models/simulation";
 
 export async function GET() {
   await connectDB();
