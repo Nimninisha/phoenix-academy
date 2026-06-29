@@ -1,12 +1,14 @@
 export const dynamic = "force-dynamic";
+
 import Stripe from "stripe";
 import dbConnect from "@/lib/mongodb";
 import Plan from "@/lib/models/plan";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
 export async function POST(req) {
   await dbConnect();
+
+  // ✅ Create Stripe instance INSIDE function
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   const { planKind, billingPeriod, userId } = await req.json();
 
