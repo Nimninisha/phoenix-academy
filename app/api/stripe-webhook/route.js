@@ -1,16 +1,21 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 import dbConnect from "@/lib/mongodb";
 import Subscription from "@/lib/models/subscription";
-import { Resend } from "resend";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
+  // Load Stripe ONLY at runtime
+  const Stripe = (await import("stripe")).default;
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+  // Load Resend ONLY at runtime
+  const { Resend } = await import("resend");
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   const sig = req.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-  // Stripe requires raw body
   const buf = await req.arrayBuffer();
   const body = Buffer.from(buf);
 
@@ -23,7 +28,6 @@ export async function POST(req) {
     return new Response("Webhook Error", { status: 400 });
   }
 
-  // Handle checkout completion
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
@@ -31,9 +35,8 @@ export async function POST(req) {
     const customerId = session.customer;
     const subscriptionId = session.subscription;
 
-   await dbConnect();
+    await dbConnect();
 
-    // Retrieve full subscription details from Stripe
     const stripeSub = await stripe.subscriptions.retrieve(subscriptionId);
 
     const currentPeriodStart = new Date(
@@ -43,7 +46,6 @@ export async function POST(req) {
       stripeSub.current_period_end * 1000
     );
 
-    // Save subscription in MongoDB
     await Subscription.create({
       userId: metadata.userId,
       planId: metadata.planId,
@@ -57,7 +59,7 @@ export async function POST(req) {
       currentPeriodEnd,
     });
 
-    // ⭐ Notify Phoenix (Admin)
+    // ✅ Send email notification
     await resend.emails.send({
       from: "Phoenix Academy <notifications@phoenixacademy.com>",
       to: "nimninisha@gmail.com",

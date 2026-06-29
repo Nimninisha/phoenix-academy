@@ -1,11 +1,14 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 import dbConnect from "@/lib/mongodb";
 import Subscription from "@/lib/models/subscription";
 
-const Stripe = (await import("stripe")).default;
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
 export async function POST(req) {
+  // Load Stripe ONLY inside function
+  const Stripe = (await import("stripe")).default;
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
   const sig = req.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -55,3 +58,4 @@ export async function POST(req) {
 
   return new Response("OK", { status: 200 });
 }
+``
