@@ -224,19 +224,59 @@ console.log(
   data.id
 );
 
-const stripe = window.Stripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-);
+const startCheckout = async (
+  planKind,
+  billingPeriod
+) => {
+  try {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        planKind,
+        billingPeriod,
+      }),
+    });
 
-console.log(
-  "STRIPE OBJECT:",
-  stripe
-);
+    const data = await res.json();
 
-const result =
-  await stripe.redirectToCheckout({
-    sessionId: data.id,
-  });
+    console.log("CHECKOUT RESPONSE:", data);
+
+    if (!data.id) {
+      alert(data.error || "Checkout error");
+      return;
+    }
+
+    const stripeModule = await import(
+      "@stripe/stripe-js"
+    );
+
+    const stripe =
+      await stripeModule.loadStripe(
+        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+      );
+
+    if (!stripe) {
+      alert("Stripe failed to load");
+      return;
+    }
+
+    const result =
+      await stripe.redirectToCheckout({
+        sessionId: data.id,
+      });
+
+    if (result?.error) {
+      console.error(result.error);
+      alert(result.error.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Checkout failed");
+  }
+};
 
 console.log(
   "REDIRECT RESULT:",
