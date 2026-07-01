@@ -6,10 +6,15 @@ import PageLogo from "../../components/PageLogo";
 // Subscription buttons with REAL prices (type-level)
 const SubscriptionButtons = ({ planKind, onSubscribe }) => {
   const prices = {
-    quiz: { monthly: 12.99, yearly: 99.99 },
-    lab: { monthly: 19.99, yearly: 149.99 },
-    printed: { monthly: 14.99, yearly: 119.99 },
-  };
+  quiz: { monthly: 12.99, yearly: 99.99 },
+
+  lab: { monthly: 19.99, yearly: 149.99 },
+
+  "revision-library": {
+    monthly: 14.99,
+    yearly: 119.99,
+  },
+};
 
   const p = prices[planKind];
   if (!p) return null; // video has no subscription
@@ -66,12 +71,12 @@ const printedTypes = [
   {
     id: "model",
     name: "Model Papers",
-    planKind: "printed",
+    planKind: "revision-library",
   },
   {
     id: "revision",
     name: "Revision Books",
-    planKind: "printed",
+    planKind: "revision-library",
   },
 ];
 
@@ -448,14 +453,14 @@ export default function StorePage() {
         <div className="course-tile">
           <div
             className="course-tile-header"
-            onClick={() => toggleRoot("printed")}
+            onClick={() => toggleRoot("revision-library")}
             style={{ cursor: "pointer" }}
           >
             <span className="course-icon">📚</span>
-            <h2>Printed Resources</h2>
+            <h2>Premium Revision Library</h2>
           </div>
 
-          {activeRoot === "printed" && (
+          {activeRoot === "revision-library" && (
             <div className="course-tile-body-nested">
               {printedTypes.map((type) => (
                 <div key={type.id} className="course-category">
@@ -469,11 +474,14 @@ export default function StorePage() {
                   {activeType === type.id && (
                     <div className="store-board-subjects">
                       <SubscriptionButtons
-                        planKind="printed"
-                        onSubscribe={(billingPeriod) =>
-                          startCheckout("printed", billingPeriod)
-                        }
-                      />
+  planKind="revision-library"
+  onSubscribe={(billingPeriod) =>
+    startCheckout(
+      "revision-library",
+      billingPeriod
+    )
+  }
+/>
 
                       <div className="course-category-chips">
                         {allCurriculums.map((cur) => (
