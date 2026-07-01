@@ -4,11 +4,16 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req) {
   try {
+    console.log("STEP 1: Route entered");
+
     await dbConnect();
+    console.log("STEP 2: Database connected");
 
-    const { name, email, password } = await req.json();
+    const body = await req.json();
+    console.log("STEP 3: Request received", body);
 
-    // ✅ Validate
+    const { name, email, password } = body;
+
     if (!name || !email || !password) {
       return Response.json(
         { error: "All fields required" },
@@ -16,8 +21,10 @@ export async function POST(req) {
       );
     }
 
-    // ✅ Check existing user
     const existing = await User.findOne({ email });
+
+    console.log("STEP 4: Existing user check", existing);
+
     if (existing) {
       return Response.json(
         { error: "User already exists" },
@@ -25,26 +32,30 @@ export async function POST(req) {
       );
     }
 
-    // ✅ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Save correctly
-    await User.create({
+    console.log("STEP 5: Password hashed");
+
+    const user = await User.create({
       name,
       email,
       passwordHash: hashedPassword,
+      role: "student",
     });
+
+    console.log("STEP 6: User created", user);
 
     return Response.json(
       { message: "User created successfully" },
       { status: 201 }
     );
-
   } catch (err) {
-    console.error("REGISTER ERROR:", err); // ✅ IMPORTANT
+    console.error("REGISTER ERROR FULL:", err);
 
     return Response.json(
-      { error: "Server error" },
+      {
+        error: err.message,
+      },
       { status: 500 }
     );
   }
