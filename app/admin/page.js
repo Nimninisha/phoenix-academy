@@ -34,82 +34,48 @@ export default async function AdminPage() {
     return (
       <div style={{ padding: "40px" }}>
         <h1>Access Denied</h1>
-        <p>Admin access required.</p>
       </div>
     );
   }
 
-  const totalUsers = await User.countDocuments();
+  let totalUsers = 0;
+  let totalPlans = 0;
+  let totalSimulations = 0;
+  let totalSubscriptions = 0;
 
-  const totalPlans = await Plan.countDocuments();
-
-  const totalSimulations =
-    await Simulation.countDocuments();
-
-  const totalSubscriptions =
-    await Subscription.countDocuments({
-      status: "active",
-    });
+  try {
+    totalUsers = await User.countDocuments();
+    totalPlans = await Plan.countDocuments();
+    totalSimulations = await Simulation.countDocuments();
+    totalSubscriptions =
+      await Subscription.countDocuments({
+        status: "active",
+      });
+  } catch (err) {
+    console.error("ADMIN DASHBOARD ERROR:", err);
+  }
 
   return (
     <div style={{ padding: "40px" }}>
-      <h1>Admin Dashboard</h1>
+      <h1>🚀 NEW ADMIN DASHBOARD</h1>
 
       <p>Welcome Admin ✅</p>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(220px,1fr))",
-          gap: "20px",
-          marginTop: "30px",
-        }}
-      >
-        <div
-          style={{
-            padding: "20px",
-            border: "1px solid #ddd",
-            borderRadius: "10px",
-          }}
-        >
-          <h3>Total Users</h3>
-          <h2>{totalUsers}</h2>
-        </div>
+      <hr />
 
-        <div
-          style={{
-            padding: "20px",
-            border: "1px solid #ddd",
-            borderRadius: "10px",
-          }}
-        >
-          <h3>Total Plans</h3>
-          <h2>{totalPlans}</h2>
-        </div>
+      <h2>Debug Data</h2>
 
-        <div
-          style={{
-            padding: "20px",
-            border: "1px solid #ddd",
-            borderRadius: "10px",
-          }}
-        >
-          <h3>Total Simulations</h3>
-          <h2>{totalSimulations}</h2>
-        </div>
+      <p>Total Users: {totalUsers}</p>
+      <p>Total Plans: {totalPlans}</p>
+      <p>Total Simulations: {totalSimulations}</p>
+      <p>Active Subscriptions: {totalSubscriptions}</p>
 
-        <div
-          style={{
-            padding: "20px",
-            border: "1px solid #ddd",
-            borderRadius: "10px",
-          }}
-        >
-          <h3>Active Subscriptions</h3>
-          <h2>{totalSubscriptions}</h2>
-        </div>
-      </div>
+      <hr />
+
+      <p>
+        If you see this page, the deployment is using the
+        newest code.
+      </p>
     </div>
   );
 }
