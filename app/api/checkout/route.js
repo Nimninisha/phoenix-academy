@@ -21,8 +21,12 @@ export async function POST(req) {
 
     if (!token) {
       return Response.json(
-        { error: "Please login first" },
-        { status: 401 }
+        {
+          error: "Please login first",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
@@ -33,28 +37,51 @@ export async function POST(req) {
         token,
         process.env.JWT_SECRET
       );
-    } catch {
+    } catch (err) {
       return Response.json(
-        { error: "Invalid session" },
-        { status: 401 }
+        {
+          error: "Invalid session",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
-    const { planKind, billingPeriod } =
-      await req.json();
+    const body = await req.json();
+
+    console.log("REQUEST BODY:", body);
+
+    const {
+      planKind,
+      billingPeriod,
+    } = body;
+
+    console.log("PLAN KIND:", planKind);
+    console.log("BILLING PERIOD:", billingPeriod);
 
     const plan = await Plan.findOne({
       planKind,
       billingPeriod,
     });
-console.log("PLAN FOUND:", plan);
-console.log("PRICE ID:", plan?.stripePriceId);
+
+    console.log("PLAN FOUND:", plan);
+
     if (!plan) {
       return Response.json(
-        { error: "Plan not found" },
-        { status: 404 }
+        {
+          error: `Plan not found for ${planKind} / ${billingPeriod}`,
+        },
+        {
+          status: 404,
+        }
       );
     }
+
+    console.log(
+      "PRICE ID:",
+      plan.stripePriceId
+    );
 
     if (!plan.stripePriceId) {
       return Response.json(
@@ -62,7 +89,9 @@ console.log("PRICE ID:", plan?.stripePriceId);
           error:
             "Stripe price ID missing for this plan",
         },
-        { status: 400 }
+        {
+          status: 400,
+        }
       );
     }
 
@@ -78,21 +107,26 @@ console.log("PRICE ID:", plan?.stripePriceId);
         ],
 
         success_url:
-          `${process.env.NEXT_PUBLIC_BASE_URL}` +
-          `/my-subscriptions?success=true`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/my-subscriptions?success=true`,
 
         cancel_url:
-          `${process.env.NEXT_PUBLIC_BASE_URL}` +
-          `/store?canceled=true`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/store?canceled=true`,
 
         metadata: {
           userId: decoded.userId,
           planId: plan._id.toString(),
           planKind: plan.planKind,
-          resourceType: plan.resourceType,
-          billingPeriod: plan.billingPeriod,
+          resourceType:
+            plan.resourceType,
+          billingPeriod:
+            plan.billingPeriod,
         },
       });
+
+    console.log(
+      "SESSION CREATED:",
+      session.id
+    );
 
     return Response.json({
       id: session.id,
@@ -107,7 +141,9 @@ console.log("PRICE ID:", plan?.stripePriceId);
       {
         error: error.message,
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

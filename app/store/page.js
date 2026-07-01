@@ -208,16 +208,44 @@ export default function StorePage() {
       body: JSON.stringify({ planKind, billingPeriod, userId }),
     });
 
-    const data = await res.json();
-    if (!data.id) {
-      alert("Checkout error");
-      return;
-    }
+  const data = await res.json();
 
-    const stripe = window.Stripe(
-      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-    );
-    stripe.redirectToCheckout({ sessionId: data.id });
+console.log("CHECKOUT RESPONSE:", data);
+
+if (!data.id) {
+  alert(
+    data.error || "Checkout error"
+  );
+  return;
+}
+
+console.log(
+  "SESSION ID:",
+  data.id
+);
+
+const stripe = window.Stripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+);
+
+console.log(
+  "STRIPE OBJECT:",
+  stripe
+);
+
+const result =
+  await stripe.redirectToCheckout({
+    sessionId: data.id,
+  });
+
+console.log(
+  "REDIRECT RESULT:",
+  result
+);
+
+if (result?.error) {
+  alert(result.error.message);
+}
   };
 
   const toggleRoot = (id) => {
