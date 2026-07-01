@@ -10,12 +10,15 @@ export async function POST(req) {
   try {
     const { email, password } = await req.json();
 
-    // ✅ validation
     if (!email || !password) {
       return NextResponse.json(
         { error: "Missing fields" },
         { status: 400 }
       );
+    }
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET environment variable is missing");
     }
 
     await dbConnect();
@@ -29,10 +32,9 @@ export async function POST(req) {
       );
     }
 
-    // ✅ THIS IS CORRECT ✅
     const isMatch = await bcrypt.compare(
       password,
-      user.passwordHash   // ✅ correct field
+      user.passwordHash
     );
 
     if (!isMatch) {
@@ -43,9 +45,15 @@ export async function POST(req) {
     }
 
     const token = jwt.sign(
-      { userId: user._id.toString(), email: user.email },
+      {
+        userId: user._id.toString(),
+        email: user.email,
+        role: user.role,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      {
+        expiresIn: "7d",
+      }
     );
 
     const res = NextResponse.json({
@@ -65,14 +73,14 @@ export async function POST(req) {
     });
 
     return res;
-
   } catch (err) {
-    console.error(err);
+    console.error("LOGIN ERROR:", err);
 
     return NextResponse.json(
-      { error: "Server error" },
+      {
+        error: err.message,
+      },
       { status: 500 }
     );
   }
 }
-``
