@@ -201,30 +201,7 @@ export default function StorePage() {
 
   const userId = "demo-user-id"; // replace with real auth user ID
 
-  const startCheckout = async (planKind, billingPeriod) => {
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ planKind, billingPeriod, userId }),
-    });
-
-  const data = await res.json();
-
-console.log("CHECKOUT RESPONSE:", data);
-
-if (!data.id) {
-  alert(
-    data.error || "Checkout error"
-  );
-  return;
-}
-
-console.log(
-  "SESSION ID:",
-  data.id
-);
-
-const startCheckout = async (
+  const startCheckout = async (
   planKind,
   billingPeriod
 ) => {
@@ -242,24 +219,40 @@ const startCheckout = async (
 
     const data = await res.json();
 
-    console.log("CHECKOUT RESPONSE:", data);
+    console.log(
+      "CHECKOUT RESPONSE:",
+      data
+    );
 
     if (!data.id) {
-      alert(data.error || "Checkout error");
+      alert(
+        data.error || "Checkout error"
+      );
       return;
     }
 
-    const stripeModule = await import(
-      "@stripe/stripe-js"
+    console.log(
+      "SESSION ID:",
+      data.id
     );
+
+    const stripeModule =
+      await import(
+        "@stripe/stripe-js"
+      );
 
     const stripe =
       await stripeModule.loadStripe(
-        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        process.env
+          .NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
       );
 
+    console.log("STRIPE:", stripe);
+
     if (!stripe) {
-      alert("Stripe failed to load");
+      alert(
+        "Stripe failed to load"
+      );
       return;
     }
 
@@ -268,25 +261,27 @@ const startCheckout = async (
         sessionId: data.id,
       });
 
+    console.log(
+      "REDIRECT RESULT:",
+      result
+    );
+
     if (result?.error) {
-      console.error(result.error);
-      alert(result.error.message);
+      alert(
+        result.error.message
+      );
     }
   } catch (err) {
-    console.error(err);
-    alert("Checkout failed");
+    console.error(
+      "CHECKOUT ERROR:",
+      err
+    );
+
+    alert(
+      "Checkout failed. See console."
+    );
   }
 };
-
-console.log(
-  "REDIRECT RESULT:",
-  result
-);
-
-if (result?.error) {
-  alert(result.error.message);
-}
-  };
 
   const toggleRoot = (id) => {
     setActiveRoot(activeRoot === id ? null : id);
