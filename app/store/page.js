@@ -199,8 +199,7 @@ export default function StorePage() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [activeSub, setActiveSub] = useState(null);
 
-  const userId = "demo-user-id"; // replace with real auth user ID
-
+  
   const startCheckout = async (
   planKind,
   billingPeriod
@@ -231,15 +230,9 @@ export default function StorePage() {
       return;
     }
 
-    console.log(
-      "SESSION ID:",
-      data.id
+    const stripeModule = await import(
+      "@stripe/stripe-js"
     );
-
-    const stripeModule =
-      await import(
-        "@stripe/stripe-js"
-      );
 
     const stripe =
       await stripeModule.loadStripe(
@@ -247,38 +240,22 @@ export default function StorePage() {
           .NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
       );
 
-    console.log("STRIPE:", stripe);
-
     if (!stripe) {
-      alert(
-        "Stripe failed to load"
-      );
+      alert("Stripe failed to load");
       return;
     }
 
-    const result =
-      await stripe.redirectToCheckout({
-        sessionId: data.id,
-      });
-
-    console.log(
-      "REDIRECT RESULT:",
-      result
-    );
-
-    if (result?.error) {
-      alert(
-        result.error.message
-      );
-    }
-  } catch (err) {
+    await stripe.redirectToCheckout({
+      sessionId: data.id,
+    });
+  } catch (error) {
     console.error(
       "CHECKOUT ERROR:",
-      err
+      error
     );
 
     alert(
-      "Checkout failed. See console."
+      "Checkout failed"
     );
   }
 };
