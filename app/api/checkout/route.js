@@ -37,7 +37,7 @@ export async function POST(req) {
         token,
         process.env.JWT_SECRET
       );
-    } catch (err) {
+    } catch {
       return Response.json(
         {
           error: "Invalid session",
@@ -48,29 +48,20 @@ export async function POST(req) {
       );
     }
 
-    const body = await req.json();
-
-    console.log("REQUEST BODY:", body);
-
     const {
       planKind,
       billingPeriod,
-    } = body;
-
-    console.log("PLAN KIND:", planKind);
-    console.log("BILLING PERIOD:", billingPeriod);
+    } = await req.json();
 
     const plan = await Plan.findOne({
       planKind,
       billingPeriod,
     });
 
-    console.log("PLAN FOUND:", plan);
-
     if (!plan) {
       return Response.json(
         {
-          error: `Plan not found for ${planKind} / ${billingPeriod}`,
+          error: `Plan not found: ${planKind} / ${billingPeriod}`,
         },
         {
           status: 404,
@@ -78,16 +69,11 @@ export async function POST(req) {
       );
     }
 
-    console.log(
-      "PRICE ID:",
-      plan.stripePriceId
-    );
-
     if (!plan.stripePriceId) {
       return Response.json(
         {
           error:
-            "Stripe price ID missing for this plan",
+            "Stripe price ID missing",
         },
         {
           status: 400,
@@ -107,10 +93,12 @@ export async function POST(req) {
         ],
 
         success_url:
-          `${process.env.NEXT_PUBLIC_BASE_URL}/my-subscriptions?success=true`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}` +
+          `/my-subscriptions?success=true`,
 
         cancel_url:
-          `${process.env.NEXT_PUBLIC_BASE_URL}/store?canceled=true`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}` +
+          `/store?canceled=true`,
 
         metadata: {
           userId: decoded.userId,
@@ -130,6 +118,7 @@ export async function POST(req) {
 
     return Response.json({
       id: session.id,
+      url: session.url,
     });
   } catch (error) {
     console.error(
