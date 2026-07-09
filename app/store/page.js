@@ -229,25 +229,26 @@ export default function StorePage() {
       );
       return;
     }
-
+console.log("STEP A");
     const stripeModule = await import(
       "@stripe/stripe-js"
     );
-
+console.log("STEP B", stripeModule);
     const stripe =
       await stripeModule.loadStripe(
         process.env
           .NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
       );
-
+console.log("STEP C", stripe);
     if (!stripe) {
       alert("Stripe failed to load");
       return;
     }
-
+console.log("STEP D");
     await stripe.redirectToCheckout({
       sessionId: data.id,
     });
+    console.log("STEP E");
   } catch (error) {
     console.error(
       "CHECKOUT ERROR:",
