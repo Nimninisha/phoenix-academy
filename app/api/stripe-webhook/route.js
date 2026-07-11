@@ -9,11 +9,13 @@ export async function POST(req) {
     console.log("WEBHOOK HIT");
 
     const Stripe = (await import("stripe")).default;
+
     const stripe = new Stripe(
       process.env.STRIPE_SECRET_KEY
     );
 
     const { Resend } = await import("resend");
+
     const resend = new Resend(
       process.env.RESEND_API_KEY
     );
@@ -39,8 +41,8 @@ export async function POST(req) {
         );
     } catch (err) {
       console.error(
-        "Webhook signature verification failed:",
-        err.message
+        "Webhook signature error:",
+        err
       );
 
       return new Response(
@@ -77,6 +79,21 @@ export async function POST(req) {
       const subscriptionId =
         session.subscription;
 
+      console.log(
+        "METADATA:",
+        metadata
+      );
+
+      console.log(
+        "CUSTOMER:",
+        customerId
+      );
+
+      console.log(
+        "SUBSCRIPTION:",
+        subscriptionId
+      );
+
       await dbConnect();
 
       let currentPeriodStart =
@@ -100,67 +117,74 @@ export async function POST(req) {
 
         console.log(
           "STRIPE SUB:",
-          stripeSub.id
+          stripeSub
         );
 
         if (
-          stripeSub.items?.data?.[0]
-            ?.current_period_start
+          stripeSub.current_period_start
         ) {
           currentPeriodStart =
             new Date(
-              stripeSub.items.data[0]
-                .current_period_start * 1000
+              stripeSub.current_period_start *
+                1000
             );
         }
 
         if (
-          stripeSub.items?.data?.[0]
-            ?.current_period_end
+          stripeSub.current_period_end
         ) {
           currentPeriodEnd =
             new Date(
-              stripeSub.items.data[0]
-                .current_period_end * 1000
+              stripeSub.current_period_end *
+                1000
             );
         }
       } catch (err) {
         console.error(
-          "Subscription retrieval failed:",
+          "SUBSCRIPTION RETRIEVE ERROR:",
           err
         );
       }
 
-      const existing =
-        await Subscription.findOne({
-          stripeSubscriptionId:
-            subscriptionId,
-        });
+      try {
+        const existing =
+          await Subscription.findOne({
+            stripeSubscriptionId:
+              subscriptionId,
+          });
 
-      if (!existing) {
-        await Subscription.create({
-          userId:
-            metadata.userId,
-          planId:
-            metadata.planId,
-          planKind:
-            metadata.planKind,
-          resourceType:
-            metadata.resourceType,
-          billingPeriod:
-            metadata.billingPeriod,
-          stripeCustomerId:
-            customerId,
-          stripeSubscriptionId:
-            subscriptionId,
-          status: "active",
-          currentPeriodStart,
-          currentPeriodEnd,
-        });
+        if (!existing) {
+          await Subscription.create({
+            userId:
+              metadata.userId,
+            planId:
+              metadata.planId,
+            planKind:
+              metadata.planKind,
+            resourceType:
+              metadata.resourceType,
+            billingPeriod:
+              metadata.billingPeriod,
+            stripeCustomerId:
+              customerId,
+            stripeSubscriptionId:
+              subscriptionId,
+            status: "active",
+            currentPeriodStart,
+            currentPeriodEnd,
+          });
 
-        console.log(
-          "SUBSCRIPTION CREATED"
+          console.log(
+            "SUBSCRIPTION CREATED"
+          );
+        }
+      } catch (dbError) {
+        console.error(
+          "DATABASE ERROR:",
+          dbError
         );
+
+        throw dbError;
       }
 
       try {
@@ -196,7 +220,9 @@ export async function POST(req) {
     );
 
     return new Response(
-      "Webhook Failed",
+      JSON.stringify({
+        error: error.message,
+      }),
       {
         status: 500,
       }
